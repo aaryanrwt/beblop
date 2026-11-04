@@ -1,17 +1,13 @@
 {
-  "version": 2,
   "cleanUrls": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/bebop/api.py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
