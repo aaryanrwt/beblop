@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Large third-party reference clones & external libraries
+airllm/
+design_ref/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

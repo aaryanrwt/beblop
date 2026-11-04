@@ -1,0 +1,85 @@
+--- PAGE 1 ---
+Hackathon Participant Repositories: Snapshot, 4 Nov 2026
+Source: GitHub repository search (phrase queries on the hackathon name), run on 4 Nov 2026. Full list: BEBOP_Hackathon_Participant_Repos.csv.
+1. How many
+ Measure
+Count
+Public repos found (created since 20 Oct 2026), unique GitHub accounts
+718 repos, 700 accounts
+Last pushed on Oct 31 / Nov 1 / Nov 2 / Nov 3
+27 / 49 / 73 / 276
+Last pushed today (Nov 4)
+153
+Repos with a push on Oct 3
+0 (hackathon opened Oct 26; earliest repo in the set was
+created Oct 20)
+2. Repos closest to BEBOP (verifiers, measurement, camera safety, robotics)
+ Repo (participant)
+Last push
+What it does (from its README)
+Overlap with BEBOP
+SizanobuhleZulu/BONISA
+Nov 2
+Phone video to a physics measurement (g) with uncertainty; refuses
+to output a number if eight checks fail. SAM 3.1.
+Highest: abstains on weak
+evidence, other domain
+tamzid2001/sceneproof
+Oct 27
+Deterministic constraint engine verifies robot scenes after 'what if'
+changes; models explain, code decides.
+High: same 'models propose,
+code decides'
+SANGRAMLEMBE/landproof
+Nov 3
+Drone emergency landing; SAM 3.1 checks hazard claims,
+deterministic verifier refutes unsafe zones.
+High: evidence-gated safety
+verdict
+surasakphetmanee/mars-rover-edgeche
+ck
+Nov 1
+Per-command rover safety checker validated against PRISM; SAM
+2.1 features. Reports measured numbers.
+Medium: verified safety,
+probabilistic
+WaleedOH/clearline
+Nov 3
+Pharma line clearance: SAM 3.1 outlines leftovers, Muse Spark
+judges, QA signs record.
+Medium: camera check,
+different 'clearance'
+manju89jay/navfail
+Oct 27
+Agent that investigates Nav2 navigation failures in Gazebo.
+Medium: failure diagnosis
+allenvarghese05/telltale
+Nov 4
+Meta AI investigates vehicle crashes; a deterministic checker makes
+it prove claims.
+Medium
+duneon97/evidence-gated-repair
+Oct 31
+Repair agent that refuses to claim a fix it cannot prove.
+Low-medium: refusal idea,
+code domain
+Harpith2/25worlds
+Nov 2
+Spatial intelligence for robots navigating unseen spaces from one
+camera.
+Low-medium
+abelxmendoza/RobotForge-Hackathon
+Nov 4
+Describe a robot in words, get a validated digital twin.
+Low
+Participant = the GitHub account that owns the repo. I read each README's opening section only; I did not audit code, results or whether
+any of these were submitted.
+3. What this means for BEBOP
+The 'models propose, deterministic code decides' idea is common here, and BONISA already abstains on weak evidence in another
+domain. A repo claiming novelty on that alone will lose. BEBOP's defensible edge is narrower: a measured, head-to-head false-approval
+benchmark on scenes where the evidence is truly insufficient, with the three baselines. Read BONISA and SceneProof before you
+present.
+4. Limits of this list
+GitHub search finds only public repos that mention the event in the name, description or README, so it misses private repos and
+participants with no repo. 'Last pushed' is the most recent push, not the first, so a repo shown on Nov 3 may have started earlier. A repo
+existing does not mean a submission was made, and some matches may be unrelated to the hackathon.

@@ -1,0 +1,54 @@
+{
+  "acdc_adverse_visibility": {
+    "fog": {
+      "condition": "fog",
+      "sigma_d_mm": 14.49,
+      "gap_clearance_d_mm": 6.0,
+      "baseline_vlm_decision": "PASS (False Approval under adverse visibility)",
+      "bebop_decision": "UNDECIDED",
+      "bebop_target_sigma": 3.0,
+      "explanation": "Clearance marginal: |delta| (6.0 mm) is within uncertainty boundary (29.0 mm)."
+    },
+    "night": {
+      "condition": "night",
+      "sigma_d_mm": 11.99,
+      "gap_clearance_d_mm": 6.0,
+      "baseline_vlm_decision": "PASS (False Approval under adverse visibility)",
+      "bebop_decision": "UNDECIDED",
+      "bebop_target_sigma": 3.0,
+      "explanation": "Clearance marginal: |delta| (6.0 mm) is within uncertainty boundary (24.0 mm)."
+    },
+    "rain": {
+      "condition": "rain",
+      "sigma_d_mm": 9.79,
+      "gap_clearance_d_mm": 6.0,
+      "baseline_vlm_decision": "PASS (False Approval under adverse visibility)",
+      "bebop_decision": "UNDECIDED",
+      "bebop_target_sigma": 3.0,
+      "explanation": "Clearance marginal: |delta| (6.0 mm) is within uncertainty boundary (19.6 mm)."
+    },
+    "snow": {
+      "condition": "snow",
+      "sigma_d_mm": 11.19,
+      "gap_clearance_d_mm": 6.0,
+      "baseline_vlm_decision": "PASS (False Approval under adverse visibility)",
+      "bebop_decision": "UNDECIDED",
+      "bebop_target_sigma": 3.0,
+      "explanation": "Clearance marginal: |delta| (6.0 mm) is within uncertainty boundary (22.4 mm)."
+    }
+  },
+  "asgardbench_handshifts": {
+    "dataset": "Microsoft AsgardBench",
+    "state_changes_tested": 10,
+    "stale_plans_prevented": 10,
+    "invalidation_rate": "100.0%",
+    "baseline_stale_execution_rate": "63.9% (Per AsgardBench preprint)"
+  },
+  "secvos_disappearance": {
+    "dataset": "OpenIXCLab/SeCVOS",
+    "phenomenon": "Object Disappearance / Sudden Occlusion (30.2% rate)",
+    "ledger_invalidation": true,
+    "reason": "Object disappeared or not detected",
+    "verdict_post_invalidation": "UNDECIDED (Re-observation required)"
+  }
+}

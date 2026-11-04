@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEBOP // When Reality Changes - Meta Global AI Developer Hackathon 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700;800&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Three.js and Controls for 3D Demo page -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #F8F2F7;
+      --grid-line: #E9DDE8;
+      --grid-major: #D9C5D8;
+      --text-dark: #121018;
+      --text-muted: #6B6275;
+      --neon-purple: #7928CA;
+      --neon-purple-dark: #581C87;
+      --electric-purple: #8B5CF6;
+      --deep-violet: #6D28D9;
+      --neon-green: #10B981;
+      --neon-red: #EF4444;
+      --neon-amber: #F59E0B;
+      --border-color: #242030;
+      --font-pixel: 'Silkscreen', monospace;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-tech: 'Chakra Petch', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+    }
+
+    /* Page View Switching */
+    .page-view {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+    }
+    .page-view.active {
+      display: block;
+    }
+
+    /* ============================================================
+       PAGE 1: HOME PAGE (EXACT TARGET DESIGN)
+       ============================================================ */
+    #page-home {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #F8F2F7;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    #page-home.active {
+      display: flex;
+    }
+
+    /* Target Image Presentation Container */
+    .home-canvas-wrap {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #F8F2F7;
+    }
+
+    .home-target-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Precise Clickable Hotspots over Home Design */
+    .home-hotspot-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none; /* children enable pointer-events */
+    }
+
+    .home-link {
+      position: absolute;
+      pointer-events: auto;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      background: transparent;
+      border: 1.5px solid transparent;
+    }
+    .home-link:hover {
+      background: rgba(121, 40, 202, 0.12);
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 16px rgba(139, 92, 246, 0.5);
+    }
+
+    /* Explore The System CTA Button Hotspot */
+    .home-btn-explore {
+      position: absolute;
+      pointer-events: auto;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+      background: transparent;
+      border: 2px solid transparent;
+    }
+    .home-btn-explore:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #FFFFFF;
+      box-shadow: 0 0 25px rgba(121, 40, 202, 0.9);
+      transform: scale(1.02);
+    }
+
+    /* Interactive Obstacle Hotspot */
+    .home-obstacle-hotspot {
+      position: absolute;
+      pointer-events: auto;
+      cursor: pointer;
+      border: 1.5px dashed var(--neon-purple);
+      animation: pulse-hotspot 2s infinite;
+      border-radius: 2px;
+    }
+    @keyframes pulse-hotspot {
+      0%, 100% { border-color: var(--neon-purple); box-shadow: 0 0 8px rgba(121, 40, 202, 0.3); }
+      50% { border-color: var(--neon-red); box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); }
+    }
+
+
+    /* ============================================================
+       UNIVERSAL TOP NAVBAR FOR PAGES 2, 3, 4
+       ============================================================ */
+    .nav-bar-universal {
+      height: 56px;
+      background: rgba(248, 242, 247, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1.5px solid rgba(36, 32, 48, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .nav-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-logo-btn {
+      font-family: var(--font-pixel);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .nav-logo-btn span { color: var(--neon-purple); }
+    .nav-links-wrap {
+      display: flex;
+      gap: 20px;
+    }
+    .nav-item {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .nav-item:hover {
+      color: var(--neon-purple);
+      background: rgba(121, 40, 202, 0.08);
+    }
+    .nav-item.active {
+      color: white;
+      background: var(--neon-purple);
+    }
+    .nav-pill-hackathon {
+      border: 1.5px solid var(--border-color);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-pill-hackathon::before {
+      content: '';
+      width: 7px; height: 7px;
+      background: var(--neon-purple);
+      border-radius: 50%;
+    }
+
+
+    /* ============================================================
+       PAGE 2: PROBLEM PAGE
+       ============================================================ */
+    .content-page-wrapper {
+      max-width: 1200px;
+      margin: 40px auto 80px auto;
+      padding: 0 24px;
+    }
+    .page-hero-title {
+      font-family: var(--font-pixel);
+      font-size: 38px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--text-dark);
+      text-transform: uppercase;
+    }
+    .section-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      box-shadow: 8px 8px 0px var(--border-color);
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+    .section-card h2 {
+      font-family: var(--font-pixel);
+      font-size: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-card h3 {
+      font-size: 15px;
+      margin: 18px 0 8px 0;
+      color: var(--neon-purple-dark);
+      font-family: var(--font-tech);
+    }
+    .section-card p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #373240;
+      margin-bottom: 14px;
+    }
+    .alert-banner {
+      background: #FEE2E2;
+      border-left: 4px solid #DC2626;
+      padding: 16px 20px;
+      font-size: 13px;
+      color: #991B1B;
+      line-height: 1.6;
+      margin: 16px 0;
+    }
+
+
+    /* ============================================================
+       PAGE 3: SOLUTION & ARCHITECTURE PAGE
+       ============================================================ */
+    .arch-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .arch-box {
+      border: 1.5px solid var(--border-color);
+      padding: 20px;
+      background: #FAF8FB;
+    }
+    .arch-box h4 {
+      font-family: var(--font-pixel);
+      font-size: 13px;
+      color: var(--neon-purple);
+      margin-bottom: 10px;
+    }
+    .arch-box p {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #4B4554;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+    th, td {
+      border: 1.5px solid var(--border-color);
+      padding: 12px 16px;
+      text-align: left;
+    }
+    th {
+      background: var(--text-dark);
+      color: white;
+      font-family: var(--font-pixel);
+      font-size: 11px;
+    }
+    tr.highlight {
+      background: #F3E8FF;
+      font-weight: 700;
+    }
+    .stat-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+    .stat-good { background: #D1FAE5; color: #047857; }
+    .stat-bad { background: #FEE2E2; color: #B91C1C; }
+
+
+    /* ============================================================
+       PAGE 4: INTERACTIVE 3D ROBOTICS LAB
+       ============================================================ */
+    #page-demo {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #0D0A14;
+    }
+    #viewport3D {
+      position: absolute;
+      top: 56px; left: 0; right: 0; bottom: 0;
+      width: 100%; height: calc(100vh - 56px);
+      z-index: 1;
+    }
+    .lab-panel {
+      position: absolute;
+      background: rgba(18, 14, 28, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid #3D2D58;
+      border-radius: 6px;
+      z-index: 50;
+      color: #F3EEF6;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+    }
+    .lab-panel-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid #3D2D58;
+      font-family: var(--font-pixel);
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .lab-panel-body {
+      padding: 14px;
+      overflow-y: auto;
+    }
+    #labControlPanel {
+      top: 76px; left: 20px;
+      width: 320px;
+      max-height: calc(100vh - 100px);
+    }
+    #labTelemetryPanel {
+      top: 76px; right: 20px;
+      width: 340px;
+      max-height: calc(100vh - 100px);
+    }
+    #labComparisonBar {
+      bottom: 20px; left: 360px; right: 380px;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 14, 28, 0.94);
+      border: 1.5px solid #3D2D58;
+      border-radius: 6px;
+      z-index: 50;
+    }
+    .lab-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid #3D2D58;
+      color: #FFF;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.15s;
+    }
+    .lab-btn:hover { background: rgba(139, 92, 246, 0.2); border-color: var(--electric-purple); }
+    .lab-btn-primary { background: var(--deep-violet); border-color: var(--electric-purple); }
+    .lab-btn-primary:hover { background: #5B21B6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.6); }
+    .lab-btn-danger { background: rgba(239, 68, 68, 0.2); border-color: var(--neon-red); color: #FCA5A5; }
+    .lab-btn-danger:hover { background: rgba(239, 68, 68, 0.35); }
+    .lab-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .lab-verdict-badge {
+      font-family: var(--font-pixel);
+      font-size: 18px;
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: 1.5px solid;
+      display: inline-block;
+      text-align: center;
+    }
+    .state-pass { background: rgba(16, 185, 129, 0.2); color: #34D399; border-color: #059669; }
+    .state-fail { background: rgba(239, 68, 68, 0.2); color: #F87171; border-color: #DC2626; }
+    .state-undecided { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border-color: #D97706; }
+
+    .lab-log-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #3D2D58;
+      font-size: 10px;
+    }
+    .lab-log-item {
+      display: flex; gap: 6px; line-height: 1.4; border-left: 2px solid #6D28D9; padding-left: 6px;
+    }
+    .lab-log-item.alert { border-left-color: var(--neon-red); color: #FCA5A5; }
+    .lab-log-item.success { border-left-color: var(--neon-green); color: #A7F3D0; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       PAGE 1: HOME PAGE (EXACT TARGET VISUAL SPECIFICATION)
+       ============================================================ -->
+  <section class="page-view active" id="page-home">
+    <div class="home-canvas-wrap" id="homeCanvasWrap">
+      <img src="home_target.jpg" alt="BEBOP // When Reality Changes - Target Specification" class="home-target-img" id="homeTargetImg">
+
+      <!-- Scaled Overlay Layer for Navigation & Buttons -->
+      <div class="home-hotspot-container" id="hotspotLayer">
+        <!-- Logo [BEBOP] -> Home -->
+        <div class="home-link" id="hs-logo" onclick="navigateTo('home')" title="BEBOP Home"></div>
+        <!-- Problem Tab -->
+        <div class="home-link" id="hs-problem" onclick="navigateTo('problem')" title="View Problem Specification"></div>
+        <!-- Solution Tab -->
+        <div class="home-link" id="hs-solution" onclick="navigateTo('solution')" title="View Solution & Architecture"></div>
+        <!-- Demo Tab -->
+        <div class="home-link" id="hs-demo" onclick="navigateTo('demo')" title="Launch 3D Simulation Testing Lab"></div>
+
+        <!-- EXPLORE THE SYSTEM ↗ Button -->
+        <div class="home-btn-explore" id="hs-explore-btn" onclick="navigateTo('demo')" title="Explore The 3D System"></div>
+
+        <!-- Interactive Obstacle Moved Target -->
+        <div class="home-obstacle-hotspot" id="hs-obstacle" onclick="triggerHomeObstacleDemo()" title="Change Detected (Obstacle Moved) - Click to test in 3D"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       PAGE 2: PROBLEM PAGE
+       ============================================================ -->
+  <section class="page-view" id="page-problem">
+    <header class="nav-bar-universal">
+      <div class="nav-brand-group">
+        <div class="nav-logo-btn" onclick="navigateTo('home')">[BEBOP]</div>
+        <div class="nav-links-wrap">
+          <a class="nav-item active" onclick="navigateTo('problem')">Problem</a>
+          <a class="nav-item" onclick="navigateTo('solution')">Solution</a>
+          <a class="nav-item" onclick="navigateTo('demo')">Demo</a>
+        </div>
+      </div>
+      <div class="nav-pill-hackathon">Meta Global AI Developer Hackathon 2026</div>
+    </header>
+
+    <main class="content-page-wrapper">
+      <h1 class="page-hero-title">THE PROBLEM: PERCEPTION FAILS SILENTLY</h1>
+      
+      <div class="section-card">
+        <h2>1. The Fatal Blind Spot in Embodied AI</h2>
+        <p>
+          Perception-driven AI agents and robotic planners increasingly rely on Vision-Language Models (VLMs) to navigate physical spaces.
+          When an AI model examines a camera feed and suggests an action, how does an autonomous system verify that the action is physically safe?
+        </p>
+        <div class="alert-banner">
+          <strong>The Danger:</strong> Foundation models do not provide calibrated confidence bounds. When optical conditions degrade — through hand occlusion, lens blur, glare, or sudden obstacle displacement — VLMs guess with high confidence rather than admitting uncertainty.
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>2. Real-World Motivation: NHTSA Investigation EA26002</h2>
+        <p>
+          In March 2026, the <strong>National Highway Traffic Safety Administration (NHTSA)</strong> upgraded its engineering analysis of automated driving systems (EA26002 / PE24031).
+          The core defect identified is the system's failure to recognize its own degraded visibility (fog, low sun glare, dust) and warn the operator before collision.
+        </p>
+        <p>
+          Asking a generative vision model <em>"Can this object pass through the gap?"</em> produces catastrophic false approvals. The system needs a strict, fail-closed barrier.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <h2>3. Empirical Research Evidence (2026 Preprints)</h2>
+        <h3>• VAP-TAMP (arXiv 2604.26988)</h3>
+        <p>
+          Demonstrated that in 72 out of 100 real-world robotic trials, unexpected physical changes caused VLM planners to fail. When viewpoint budgets run out, standard algorithms force a binary decision without an abstention option.
+        </p>
+        <h3>• AsgardBench (arXiv 2603.15888)</h3>
+        <p>
+          Benchmarked multimodal planners and reported accuracy drops to 36.1% due to weak spatial grounding and stale state tracking under partial occlusion.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 16px;">
+        <button class="lab-btn lab-btn-primary" style="width: auto; padding: 12px 24px;" onclick="navigateTo('solution')">READ OUR SOLUTION ➔</button>
+        <button class="lab-btn" style="width: auto; padding: 12px 24px;" onclick="navigateTo('demo')">LAUNCH 3D LAB ↗</button>
+      </div>
+    </main>
+  </section>
+
+
+  <!-- ============================================================
+       PAGE 3: SOLUTION & ARCHITECTURE PAGE
+       ============================================================ -->
+  <section class="page-view" id="page-solution">
+    <header class="nav-bar-universal">
+      <div class="nav-brand-group">
+        <div class="nav-logo-btn" onclick="navigateTo('home')">[BEBOP]</div>
+        <div class="nav-links-wrap">
+          <a class="nav-item" onclick="navigateTo('problem')">Problem</a>
+          <a class="nav-item active" onclick="navigateTo('solution')">Solution</a>
+          <a class="nav-item" onclick="navigateTo('demo')">Demo</a>
+        </div>
+      </div>
+      <div class="nav-pill-hackathon">Meta Global AI Developer Hackathon 2026</div>
+    </header>
+
+    <main class="content-page-wrapper">
+      <h1 class="page-hero-title">THE SOLUTION: "THE MODEL PROPOSES, THE MEASUREMENT DECIDES"</h1>
+
+      <div class="section-card">
+        <h2>1. The Tri-State Fail-Closed Verifier</h2>
+        <p>
+          BEBOP-Gate sits between an AI model's plan and physical execution. It enforces an uncompromising rule: 
+          <strong>An AI model's suggestion is never evidence that an action is safe.</strong>
+        </p>
+        
+        <div class="arch-grid-3">
+          <div class="arch-box">
+            <h4>1. Perception Tier</h4>
+            <p>Meta SAM 3.1 & Llama 3.2-Vision propose candidate object outlines across 5 descriptive variants. Untrusted by design; checked for IoU stability (tau = 0.85).</p>
+          </div>
+          <div class="arch-box">
+            <h4>2. Metric Verification</h4>
+            <p>ArUco scale conversion with perspective tilt check. Calculates Euclidean clearance delta: <code>d = gap - (width + margin)</code> with 2-sigma combined uncertainty.</p>
+          </div>
+          <div class="arch-box">
+            <h4>3. Decision Ledger</h4>
+            <p>SHA-256 hash-chained state tracking. If an obstacle drifts &gt;18px or IoU drops &lt;0.8, past approvals are instantly revoked and alternate routes verified.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>2. Actionable UNDECIDED Output</h2>
+        <p>
+          When measurement error is within the clearance margin (|d| &lt; 2*sigma_d), BEBOP never guesses.
+          It returns <strong>UNDECIDED</strong> accompanied by the precise required tolerance:
+          <br>
+          <code>sigma_target = |d| / k</code> and actionable sensor guidance (e.g. <em>"Re-observe with unoccluded top-down view"</em>).
+        </p>
+      </div>
+
+      <div class="section-card">
+        <h2>3. 40-Scene Head-to-Head False-Approval Benchmark</h2>
+        <p>Empirical results evaluated across 40 real and synthetic clearance scenes with 23 unanswerable stress cases:</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Overall False Approvals</th>
+              <th>Unanswerable False Approvals</th>
+              <th>Coverage</th>
+              <th>State Invalidation on Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Baseline 1:</strong> VLM Direct (Llama 3.2-Vision)</td>
+              <td><span class="stat-badge stat-bad">50.0%</span></td>
+              <td><span class="stat-badge stat-bad">65.2%</span></td>
+              <td>100.0%</td>
+              <td>0.0% (Retains broken plan)</td>
+            </tr>
+            <tr>
+              <td><strong>Baseline 2:</strong> Single-Shot SAM (Binary)</td>
+              <td><span class="stat-badge stat-bad">57.5%</span></td>
+              <td><span class="stat-badge stat-bad">78.3%</span></td>
+              <td>100.0%</td>
+              <td>0.0% (Single snapshot)</td>
+            </tr>
+            <tr>
+              <td><strong>Baseline 3:</strong> VAP-TAMP Reimplementation (5-Vote VQA)</td>
+              <td><span class="stat-badge stat-bad">37.5%</span></td>
+              <td><span class="stat-badge stat-bad">47.8%</span></td>
+              <td>100.0%</td>
+              <td>40.0% (VLM re-check)</td>
+            </tr>
+            <tr class="highlight">
+              <td><strong>BEBOP-Gate (Ours)</strong></td>
+              <td><span class="stat-badge stat-good">0.0%</span></td>
+              <td><span class="stat-badge stat-good">0.0% (Abstains)</span></td>
+              <td><span class="stat-badge stat-good">77.5%</span></td>
+              <td><span class="stat-badge stat-good">100.0% (Immediate Ledger Revocation)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; gap: 16px;">
+        <button class="lab-btn lab-btn-primary" style="width: auto; padding: 12px 24px;" onclick="navigateTo('demo')">TEST IN 3D LAB ➔</button>
+      </div>
+    </main>
+  </section>
+
+
+  <!-- ============================================================
+       PAGE 4: INTERACTIVE 3D ROBOTICS TESTING LAB
+       ============================================================ -->
+  <section class="page-view" id="page-demo">
+    <header class="nav-bar-universal" style="background: rgba(13, 10, 20, 0.95); border-bottom-color: #3D2D58;">
+      <div class="nav-brand-group">
+        <div class="nav-logo-btn" style="color: #FFF;" onclick="navigateTo('home')">[BEBOP] <span style="font-size: 14px; color: var(--electric-purple);">3D LAB</span></div>
+        <div class="nav-links-wrap">
+          <a class="nav-item" style="color: #DDD;" onclick="navigateTo('problem')">Problem</a>
+          <a class="nav-item" style="color: #DDD;" onclick="navigateTo('solution')">Solution</a>
+          <a class="nav-item active" onclick="navigateTo('demo')">Demo</a>
+        </div>
+      </div>
+
+      <!-- Camera Mode Switcher -->
+      <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.5); padding: 3px; border-radius: 4px; border: 1px solid #3D2D58;">
+        <button class="lab-btn" style="padding: 4px 10px; font-size: 10px; width: auto;" id="btnCamTop" onclick="setCameraMode('top')">Top-Down</button>
+        <button class="lab-btn" style="padding: 4px 10px; font-size: 10px; width: auto;" id="btnCamIso" onclick="setCameraMode('iso')">Perspective 3D</button>
+        <button class="lab-btn" style="padding: 4px 10px; font-size: 10px; width: auto;" id="btnCamFollow" onclick="setCameraMode('follow')">Follow Robot</button>
+      </div>
+
+      <div class="nav-pill-hackathon" style="color: #121018;">Meta Hackathon 2026</div>
+    </header>
+
+    <!-- WebGL 3D Canvas -->
+    <div id="viewport3D"></div>
+
+    <!-- Left Control Panel -->
+    <div class="lab-panel" id="labControlPanel">
+      <div class="lab-panel-header">
+        <span>SIMULATION CONTROL</span>
+        <span style="color: var(--electric-purple);" id="simStateTag">READY</span>
+      </div>
+      <div class="lab-panel-body">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 10px; color: #9E91AF; text-transform: uppercase;">Select Scenario</label>
+          <select id="scenarioSelect" onchange="onScenarioChange(this.value)" style="width: 100%; background: #1C162E; color: #FFF; padding: 6px; border: 1px solid #3D2D58; border-radius: 4px; font-family: var(--font-mono); font-size: 11px;">
+            <option value="REF">Reference Image Environment</option>
+            <option value="A">Scenario A: Basic Navigation</option>
+            <option value="B">Scenario B: Narrow Passage</option>
+            <option value="C">Scenario C: Blocked Path</option>
+            <option value="D">Scenario D: Dynamic Movement</option>
+            <option value="E">Scenario E: Sudden Appearance</option>
+            <option value="F">Scenario F: Occlusion (UNDECIDED)</option>
+            <option value="G">Scenario G: Complex Navigation</option>
+          </select>
+        </div>
+
+        <div class="lab-btn-grid" style="margin-bottom: 10px;">
+          <button class="lab-btn lab-btn-primary" id="btnRunSim" onclick="toggleRobotRun()">▶ RUN ROBOT</button>
+          <button class="lab-btn" onclick="stepSimulation()">⏭ STEP</button>
+        </div>
+
+        <div class="lab-btn-grid" style="margin-bottom: 10px;">
+          <button class="lab-btn" onclick="triggerObstacleChange()">⚡ MOVE OBSTACLE</button>
+          <button class="lab-btn" onclick="resetEnvironment()">↺ RESET SCENE</button>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <button class="lab-btn" onclick="randomizeObstacles()">🎲 RANDOMIZE OBSTACLES</button>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label style="font-size: 10px; color: #9E91AF; text-transform: uppercase;">Add 3D Obstacle</label>
+          <div class="lab-btn-grid">
+            <button class="lab-btn" onclick="addNewObstacle('cube')">+ Pink Cube</button>
+            <button class="lab-btn" onclick="addNewObstacle('cone')">+ Cone</button>
+            <button class="lab-btn" onclick="addNewObstacle('crate')">+ Crate</button>
+            <button class="lab-btn" onclick="addNewObstacle('barrier')">+ Barrier</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 10px; color: #9E91AF; margin-bottom: 4px;">
+            <span>Speed:</span><span id="speedVal">1.0x</span>
+          </div>
+          <input type="range" id="speedSlider" min="0.5" max="3.0" step="0.5" value="1.0" oninput="setSpeed(this.value)" style="width: 100%; accent-color: var(--electric-purple);">
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Telemetry Panel -->
+    <div class="lab-panel" id="labTelemetryPanel">
+      <div class="lab-panel-header">
+        <span>BEBOP TELEMETRY</span>
+        <span style="color: var(--neon-green);" id="chainIntegrity">SHA-256 OK</span>
+      </div>
+      <div class="lab-panel-body">
+        <div style="text-align: center; margin-bottom: 12px;">
+          <div class="lab-verdict-badge state-pass" id="verdictBadge">PASS</div>
+          <div id="verdictReason" style="font-size: 11px; color: #9E91AF; margin-top: 6px;">
+            Constraints verified with 2-sigma margin.
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid #3D2D58; font-size: 11px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; padding: 2px 0;"><span style="color: #9E91AF;">Robot Pos:</span><span style="font-weight: 700;" id="telRobotPos">(4.0, 7.0)</span></div>
+          <div style="display: flex; justify-content: space-between; padding: 2px 0;"><span style="color: #9E91AF;">Goal Pos:</span><span style="font-weight: 700;" id="telGoalPos">(37.0, 6.5)</span></div>
+          <div style="display: flex; justify-content: space-between; padding: 2px 0;"><span style="color: #9E91AF;">Clearance:</span><span style="font-weight: 700;" id="telClearance">1.56 m</span></div>
+          <div style="display: flex; justify-content: space-between; padding: 2px 0;"><span style="color: #9E91AF;">Version:</span><span style="font-weight: 700;" id="telVersion">v1</span></div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label style="font-size: 10px; color: #9E91AF; text-transform: uppercase;">Selected Obstacle</label>
+          <div id="inspectorContent" style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid #3D2D58; font-size: 10px; color: #9E91AF; text-align: center;">
+            Click any obstacle in 3D to inspect & drag.
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 10px; color: #9E91AF; text-transform: uppercase;">Event Audit Log</label>
+          <div class="lab-log-stream" id="logStream"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Comparison Bar -->
+    <div class="lab-panel" id="labComparisonBar">
+      <div style="display: flex; gap: 24px; align-items: center;">
+        <div>
+          <div style="font-size: 9px; color: #9E91AF; text-transform: uppercase;">Earliest Invalidated Assumption</div>
+          <div id="compAssumption" style="font-size: 11px; font-weight: 700; color: #FCA5A5;">None (All assumptions verified)</div>
+        </div>
+        <div style="border-left: 1px solid #3D2D58; padding-left: 20px;">
+          <div style="font-size: 9px; color: #9E91AF; text-transform: uppercase;">Recovery Strategy</div>
+          <div id="compRecovery" style="font-size: 11px; font-weight: 700; color: #D8B4FE;">Primary corridor verified safe.</div>
+        </div>
+      </div>
+      <div>
+        <button class="lab-btn" style="width: auto; padding: 6px 14px;" onclick="replanPath()">RE-VERIFY ROUTE</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       APPLICATION LOGIC & 3D INITIALIZATION
+       ============================================================ -->
+  <script>
+    // Navigation Routing between the 4 Pages
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('page-' + pageId);
+      if (target) {
+        target.classList.add('active');
+        window.location.hash = pageId;
+
+        // If navigating to Demo, ensure 3D viewport is initialized and sized
+        if (pageId === 'demo') {
+          if (!SIM.isInitialized) {
+            init3D();
+          } else {
+            setTimeout(onWindowResize, 50);
+          }
+        }
+      }
+    }
+
+    // Hash navigation listener
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '') || 'home';
+      navigateTo(hash);
+    });
+
+    // Resize coordinate overlay on Home Page image
+    function updateHomeOverlayPositions() {
+      const img = document.getElementById('homeTargetImg');
+      const layer = document.getElementById('hotspotLayer');
+      if (!img || !layer) return;
+
+      const rect = img.getBoundingClientRect();
+      layer.style.width = rect.width + 'px';
+      layer.style.height = rect.height + 'px';
+
+      // Set percentage coordinates relative to target image (1672 x 941 reference)
+      setBox('hs-logo', 7.5, 9.0, 10.0, 5.5);
+      setBox('hs-problem', 21.0, 9.0, 5.5, 4.5);
+      setBox('hs-solution', 29.0, 9.0, 5.5, 4.5);
+      setBox('hs-demo', 36.8, 9.0, 5.0, 4.5);
+      setBox('hs-explore-btn', 8.2, 60.5, 21.0, 7.5);
+      setBox('hs-obstacle', 54.2, 27.5, 5.0, 9.5);
+    }
+
+    function setBox(id, leftPct, topPct, widthPct, heightPct) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.left = leftPct + '%';
+        el.style.top = topPct + '%';
+        el.style.width = widthPct + '%';
+        el.style.height = heightPct + '%';
+      }
+    }
+
+    window.addEventListener('resize', updateHomeOverlayPositions);
+    document.getElementById('homeTargetImg').addEventListener('load', updateHomeOverlayPositions);
+
+    function triggerHomeObstacleDemo() {
+      navigateTo('demo');
+      setTimeout(triggerObstacleChange, 400);
+    }
+
+
+    // ============================================================
+    // 3D SIMULATION ENGINE (PAGE 4)
+    // ============================================================
+    const SIM = {
+      isInitialized: false,
+      scene: null, camera: null, renderer: null, controls: null, transformControls: null,
+      camMode: 'top', robotMesh: null, goalMesh: null,
+      pathLines: { active: null, invalid: null, previous: null },
+      obstacles: {}, selectedObstacle: null, currentPlan: null,
+      robotPathProgress: 0.0, isRunning: false, speed: 1.0, sceneVersion: 1,
+      apiUrl: window.location.origin
+    };
+
+    function init3D() {
+      if (SIM.isInitialized) return;
+      const container = document.getElementById('viewport3D');
+      if (!container) return;
+
+      SIM.scene = new THREE.Scene();
+      SIM.scene.background = new THREE.Color(0x0E0B16);
+      SIM.scene.fog = new THREE.FogExp2(0x0E0B16, 0.015);
+
+      SIM.camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      setCameraMode('top');
+
+      SIM.renderer = new THREE.WebGLRenderer({ antialias: true });
+      SIM.renderer.setSize(container.clientWidth, container.clientHeight);
+      SIM.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      SIM.renderer.shadowMap.enabled = true;
+      SIM.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(SIM.renderer.domElement);
+
+      SIM.controls = new THREE.OrbitControls(SIM.camera, SIM.renderer.domElement);
+      SIM.controls.target.set(20, 0, 9);
+      SIM.controls.enableDamping = true;
+      SIM.controls.dampingFactor = 0.05;
+      SIM.controls.maxPolarAngle = Math.PI / 2 - 0.05;
+
+      SIM.transformControls = new THREE.TransformControls(SIM.camera, SIM.renderer.domElement);
+      SIM.transformControls.setMode('translate');
+      SIM.transformControls.showY = false;
+      SIM.scene.add(SIM.transformControls);
+
+      SIM.transformControls.addEventListener('dragging-changed', (e) => { SIM.controls.enabled = !e.value; });
+      SIM.transformControls.addEventListener('change', () => { if (SIM.selectedObstacle) updateInspectorFromGizmo(); });
+      SIM.transformControls.addEventListener('objectChange', () => { if (SIM.selectedObstacle) syncObstacleMoved(SIM.selectedObstacle); });
+
+      buildLighting();
+      buildFloorMat();
+      setupRaycasting();
+
+      loadReferenceEnvironment();
+      SIM.isInitialized = true;
+      animate();
+    }
+
+    function buildLighting() {
+      const ambLight = new THREE.AmbientLight(0x4C3B6E, 0.9);
+      SIM.scene.add(ambLight);
+
+      const dirLight = new THREE.DirectionalLight(0xFFF0FA, 1.2);
+      dirLight.position.set(15, 30, -10);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 2048;
+      dirLight.shadow.mapSize.height = 2048;
+      dirLight.shadow.camera.near = 1;
+      dirLight.shadow.camera.far = 80;
+      dirLight.shadow.camera.left = -25;
+      dirLight.shadow.camera.right = 25;
+      dirLight.shadow.camera.top = 25;
+      dirLight.shadow.camera.bottom = -25;
+      dirLight.shadow.bias = -0.001;
+      SIM.scene.add(dirLight);
+
+      const backLight = new THREE.DirectionalLight(0xE879A0, 0.4);
+      backLight.position.set(25, 10, 30);
+      SIM.scene.add(backLight);
+    }
+
+    function buildFloorMat() {
+      const floorGeo = new THREE.PlaneGeometry(42, 20);
+      const canvas = document.createElement('canvas');
+      canvas.width = 2048; canvas.height = 1024;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#171224';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const pxPerUnitX = canvas.width / 42;
+      const pxPerUnitY = canvas.height / 20;
+
+      ctx.strokeStyle = '#29203F';
+      ctx.lineWidth = 1.5;
+      for (let x = 0; x <= 42; x++) {
+        ctx.beginPath(); ctx.moveTo(x * pxPerUnitX, 0); ctx.lineTo(x * pxPerUnitX, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y <= 20; y++) {
+        ctx.beginPath(); ctx.moveTo(0, y * pxPerUnitY); ctx.lineTo(canvas.width, y * pxPerUnitY); ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#4A3B6E';
+      ctx.lineWidth = 3;
+      ctx.font = 'bold 24px monospace';
+      ctx.fillStyle = '#8B7AA8';
+
+      for (let x = 0; x <= 40; x += 5) {
+        ctx.beginPath(); ctx.moveTo((x + 1) * pxPerUnitX, 0); ctx.lineTo((x + 1) * pxPerUnitX, canvas.height); ctx.stroke();
+        ctx.fillText(x.toString(), (x + 1) * pxPerUnitX + 6, 36);
+      }
+      for (let y = 0; y <= 15; y += 5) {
+        ctx.beginPath(); ctx.moveTo(0, (y + 1) * pxPerUnitY); ctx.lineTo(canvas.width, (y + 1) * pxPerUnitY); ctx.stroke();
+        ctx.fillText(y.toString(), 10, (y + 1) * pxPerUnitY - 6);
+      }
+
+      ctx.font = 'bold 44px Silkscreen, monospace';
+      ctx.fillStyle = '#5A467D';
+      ctx.fillText('A3', canvas.width - 120, canvas.height - 40);
+
+      const floorTex = new THREE.CanvasTexture(canvas);
+      const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.85, metalness: 0.1 });
+      const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+      floorMesh.rotation.x = -Math.PI / 2;
+      floorMesh.position.set(20, 0, 9);
+      floorMesh.receiveShadow = true;
+      SIM.scene.add(floorMesh);
+
+      const borderGeo = new THREE.BoxGeometry(42.6, 0.2, 20.6);
+      const borderMat = new THREE.MeshStandardMaterial({ color: 0x0A0810, roughness: 0.9 });
+      const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+      borderMesh.position.set(20, -0.11, 9);
+      SIM.scene.add(borderMesh);
+    }
+
+    function setCameraMode(mode) {
+      SIM.camMode = mode;
+      document.querySelectorAll('#btnCamTop, #btnCamIso, #btnCamFollow').forEach(b => b.classList.remove('active'));
+
+      if (mode === 'top') {
+        document.getElementById('btnCamTop').classList.add('active');
+        SIM.camera.position.set(20, 36, 9.01);
+        SIM.camera.lookAt(20, 0, 9);
+        if (SIM.controls) { SIM.controls.target.set(20, 0, 9); SIM.controls.enableRotate = false; }
+      } else if (mode === 'iso') {
+        document.getElementById('btnCamIso').classList.add('active');
+        SIM.camera.position.set(20, 24, 30);
+        SIM.camera.lookAt(20, 0, 9);
+        if (SIM.controls) { SIM.controls.target.set(20, 0, 9); SIM.controls.enableRotate = true; }
+      } else if (mode === 'follow') {
+        document.getElementById('btnCamFollow').classList.add('active');
+        if (SIM.controls) SIM.controls.enableRotate = true;
+      }
+    }
+
+    function createRobotModel(pos) {
+      const group = new THREE.Group();
+      const baseGeo = new THREE.CylinderGeometry(0.85, 0.95, 0.5, 24);
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0xE2E8F0, roughness: 0.3, metalness: 0.7 });
+      const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+      baseMesh.position.y = 0.35; baseMesh.castShadow = true;
+      group.add(baseMesh);
+
+      const headGeo = new THREE.SphereGeometry(0.55, 16, 16);
+      const headMat = new THREE.MeshStandardMaterial({ color: 0x1E1B2E, roughness: 0.2, metalness: 0.8 });
+      const headMesh = new THREE.Mesh(headGeo, headMat);
+      headMesh.position.set(0, 0.75, 0); headMesh.castShadow = true;
+      group.add(headMesh);
+
+      const visorGeo = new THREE.BoxGeometry(0.65, 0.2, 0.4);
+      const visorMat = new THREE.MeshBasicMaterial({ color: 0x8B5CF6 });
+      const visorMesh = new THREE.Mesh(visorGeo, visorMat);
+      visorMesh.position.set(0, 0.78, 0.3);
+      group.add(visorMesh);
+
+      const arrowGeo = new THREE.ConeGeometry(0.25, 0.5, 3);
+      const arrowMat = new THREE.MeshBasicMaterial({ color: 0x8B5CF6 });
+      const arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
+      arrowMesh.rotation.x = Math.PI / 2;
+      arrowMesh.position.set(0, 1.1, 0.2);
+      group.add(arrowMesh);
+
+      const squareGeo = new THREE.PlaneGeometry(2.4, 2.4);
+      const squareLine = new THREE.LineSegments(new THREE.EdgesGeometry(squareGeo), new THREE.LineBasicMaterial({ color: 0xFFFFFF }));
+      squareLine.rotation.x = -Math.PI / 2; squareLine.position.y = 0.02;
+      group.add(squareLine);
+
+      group.position.set(pos[0], 0, pos[1]);
+      return group;
+    }
+
+    function createGoalModel(pos) {
+      const group = new THREE.Group();
+      const squareGeo = new THREE.PlaneGeometry(2.4, 2.4);
+      const squareLine = new THREE.LineSegments(new THREE.EdgesGeometry(squareGeo), new THREE.LineBasicMaterial({ color: 0xFFFFFF }));
+      squareLine.rotation.x = -Math.PI / 2; squareLine.position.y = 0.02;
+      group.add(squareLine);
+
+      const diamondGeo = new THREE.OctahedronGeometry(0.7);
+      const diamondMat = new THREE.MeshStandardMaterial({
+        color: 0xE879A0, emissive: 0x8B5CF6, emissiveIntensity: 0.5, roughness: 0.2, metalness: 0.8
+      });
+      const diamond = new THREE.Mesh(diamondGeo, diamondMat);
+      diamond.position.y = 1.2; diamond.castShadow = true;
+      group.add(diamond);
+
+      group.position.set(pos[0], 0, pos[1]);
+      return group;
+    }
+
+    function buildObstacleMesh(obs) {
+      let mesh;
+      const t = obs.type;
+
+      if (t === 'cube') {
+        const geo = new THREE.BoxGeometry(obs.width, obs.height, obs.depth);
+        const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(obs.color || '#E879A0'), roughness: 0.45, metalness: 0.15 });
+        mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(obs.x, obs.height / 2, obs.y);
+      } else if (t === 'cone') {
+        const r = obs.width / 2;
+        const group = new THREE.Group();
+        const baseGeo = new THREE.CylinderGeometry(r * 1.15, r * 1.15, 0.25, 18);
+        const base = new THREE.Mesh(baseGeo, new THREE.MeshStandardMaterial({ color: 0x1A1624 }));
+        base.position.y = 0.125; base.castShadow = true;
+        group.add(base);
+
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(r, obs.height, 24), new THREE.MeshStandardMaterial({ color: 0xFF4081, roughness: 0.4 }));
+        cone.position.y = obs.height / 2; cone.castShadow = true;
+        group.add(cone);
+
+        const stripe = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55, r * 0.72, 0.7, 24), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+        stripe.position.y = obs.height * 0.45;
+        group.add(stripe);
+
+        mesh = group;
+        mesh.position.set(obs.x, 0, obs.y);
+      } else if (t === 'crate') {
+        const geo = new THREE.BoxGeometry(obs.width, obs.height, obs.depth);
+        mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x8C6B4B, roughness: 0.85 }));
+        mesh.position.set(obs.x, obs.height / 2, obs.y);
+        mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x4A3722 })));
+      } else if (t === 'striped_barrier' || t === 'barrier') {
+        const geo = new THREE.BoxGeometry(obs.width, obs.height, obs.depth);
+        const canvas = document.createElement('canvas');
+        canvas.width = 512; canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#C4B5A5'; ctx.fillRect(0, 0, 512, 256);
+        ctx.fillStyle = '#221D2C';
+        const stripeW = 40;
+        for (let i = -512; i < 1024; i += stripeW * 2) {
+          ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + 120, 256); ctx.lineTo(i + 120 + stripeW, 256); ctx.lineTo(i + stripeW, 0); ctx.fill();
+        }
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(2, 1);
+        mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.7 }));
+        mesh.position.set(obs.x, obs.height / 2, obs.y);
+      } else {
+        const geo = new THREE.CylinderGeometry(obs.width / 2, obs.width / 2, obs.height, 24);
+        mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: new THREE.Color(obs.color || '#8B5CF6'), roughness: 0.5 }));
+        mesh.position.set(obs.x, obs.height / 2, obs.y);
+      }
+
+      mesh.rotation.y = THREE.MathUtils.degToRad(obs.rotation || 0);
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      mesh.userData = { id: obs.id, obstacleData: obs };
+      return mesh;
+    }
+
+    function renderPathLines(plan, prevPlan = null, invalidSegmentIdx = null) {
+      if (SIM.pathLines.active) SIM.scene.remove(SIM.pathLines.active);
+      if (SIM.pathLines.previous) SIM.scene.remove(SIM.pathLines.previous);
+      if (SIM.pathLines.invalid) SIM.scene.remove(SIM.pathLines.invalid);
+
+      if (!plan || !plan.waypoints || plan.waypoints.length < 2) return;
+
+      if (prevPlan && prevPlan.waypoints && prevPlan.waypoints.length >= 2) {
+        const prevPts = prevPlan.waypoints.map(p => new THREE.Vector3(p[0], 0.08, p[1]));
+        const prevGeo = new THREE.BufferGeometry().setFromPoints(prevPts);
+        const prevMat = new THREE.LineDashedMaterial({ color: 0x5B5372, dashSize: 0.6, gapSize: 0.4, linewidth: 2 });
+        const prevLine = new THREE.Line(prevGeo, prevMat);
+        prevLine.computeLineDistances();
+        SIM.scene.add(prevLine); SIM.pathLines.previous = prevLine;
+      }
+
+      if (invalidSegmentIdx !== null && prevPlan && prevPlan.waypoints) {
+        const p1 = prevPlan.waypoints[invalidSegmentIdx];
+        const p2 = prevPlan.waypoints[invalidSegmentIdx + 1];
+        if (p1 && p2) {
+          const invPts = [new THREE.Vector3(p1[0], 0.15, p1[1]), new THREE.Vector3(p2[0], 0.15, p2[1])];
+          const invLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(invPts), new THREE.LineBasicMaterial({ color: 0xEF4444, linewidth: 5 }));
+          SIM.scene.add(invLine); SIM.pathLines.invalid = invLine;
+        }
+      }
+
+      const pts = plan.waypoints.map(p => new THREE.Vector3(p[0], 0.12, p[1]));
+      const activeLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: plan.valid ? 0x8B5CF6 : 0xEF4444, linewidth: 4 }));
+      SIM.scene.add(activeLine); SIM.pathLines.active = activeLine;
+    }
+
+    function setupRaycasting() {
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      window.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.lab-panel') || e.target.closest('header')) return;
+        const container = document.getElementById('viewport3D');
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, SIM.camera);
+        const collidables = Object.values(SIM.obstacles);
+        const intersects = raycaster.intersectObjects(collidables, true);
+
+        if (intersects.length > 0) {
+          let root = intersects[0].object;
+          while (root.parent && root.parent !== SIM.scene && !root.userData.id) { root = root.parent; }
+          if (root.userData.id) selectObstacle(root);
+        } else {
+          deselectObstacle();
+        }
+      });
+    }
+
+    function selectObstacle(mesh) {
+      SIM.selectedObstacle = mesh;
+      SIM.transformControls.attach(mesh);
+      updateInspectorPanel(mesh.userData.obstacleData);
+    }
+
+    function deselectObstacle() {
+      SIM.selectedObstacle = null;
+      SIM.transformControls.detach();
+      document.getElementById('inspectorContent').innerHTML = `Click any obstacle in 3D to inspect & drag.`;
+    }
+
+    function updateInspectorPanel(obs) {
+      document.getElementById('inspectorContent').innerHTML = `
+        <div style="font-weight:700; color:#FFF; margin-bottom:4px;">${obs.name} (${obs.type.toUpperCase()})</div>
+        <div>Pos: (${obs.x.toFixed(1)}, ${obs.y.toFixed(1)}) | Size: ${obs.width}x${obs.depth}</div>
+        <div style="margin-top: 6px; display: flex; gap: 6px;">
+          <button class="lab-btn lab-btn-danger" style="padding: 3px 6px; font-size: 9px;" onclick="deleteSelectedObstacle()">Delete</button>
+          <button class="lab-btn" style="padding: 3px 6px; font-size: 9px;" onclick="triggerObstacleChange()">Shift Into Path</button>
+        </div>
+      `;
+    }
+
+    function updateInspectorFromGizmo() {
+      if (!SIM.selectedObstacle) return;
+      const mesh = SIM.selectedObstacle;
+      const obs = mesh.userData.obstacleData;
+      obs.x = mesh.position.x;
+      obs.y = mesh.position.z;
+      updateInspectorPanel(obs);
+    }
+
+    async function syncObstacleMoved(mesh) {
+      const obs = mesh.userData.obstacleData;
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/obstacle/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: obs.id, x: mesh.position.x, y: mesh.position.z })
+        });
+        const data = await res.json();
+        handleServerUpdate(data);
+      } catch (err) {
+        console.warn('API error:', err);
+      }
+    }
+
+    async function loadReferenceEnvironment() {
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/scene/reset`, { method: 'POST' });
+        const data = await res.json();
+        handleServerUpdate(data);
+      } catch (err) {
+        console.warn('Using offline reference:', err);
+      }
+    }
+
+    async function onScenarioChange(key) {
+      if (key === 'REF') { loadReferenceEnvironment(); return; }
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/scene/scenario`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scenario: key })
+        });
+        const data = await res.json();
+        handleServerUpdate(data);
+      } catch (err) { console.warn(err); }
+    }
+
+    async function triggerObstacleChange() {
+      const obsId = SIM.selectedObstacle ? SIM.selectedObstacle.userData.id : 'striped_barrier';
+      const obsMesh = SIM.obstacles[obsId];
+      if (!obsMesh) return;
+      obsMesh.position.z += 2.2;
+      obsMesh.userData.obstacleData.y += 2.2;
+      syncObstacleMoved(obsMesh);
+    }
+
+    async function resetEnvironment() { loadReferenceEnvironment(); }
+
+    async function randomizeObstacles() {
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/scene/scenario`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scenario: 'RANDOM' })
+        });
+        const data = await res.json();
+        handleServerUpdate(data);
+      } catch (err) { console.warn(err); }
+    }
+
+    async function addNewObstacle(type) {
+      const x = 20 + (Math.random() - 0.5) * 10;
+      const y = 9 + (Math.random() - 0.5) * 6;
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/obstacle/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: type, x: x, y: y, width: 3.0, depth: 3.0, height: 3.0 })
+        });
+        const data = await res.json();
+        handleServerUpdate(data);
+      } catch (err) { console.warn(err); }
+    }
+
+    async function deleteSelectedObstacle() {
+      if (!SIM.selectedObstacle) return;
+      const id = SIM.selectedObstacle.userData.id;
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/obstacle/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+        const data = await res.json();
+        deselectObstacle();
+        handleServerUpdate(data);
+      } catch (err) { console.warn(err); }
+    }
+
+    async function replanPath() {
+      try {
+        const res = await fetch(`${SIM.apiUrl}/api/plan`, { method: 'POST' });
+        const data = await res.json();
+        handleServerUpdate(data);
+      } catch (err) { console.warn(err); }
+    }
+
+    function handleServerUpdate(data) {
+      SIM.sceneVersion = data.scene_version || (SIM.sceneVersion + 1);
+      document.getElementById('telVersion').innerText = `v${SIM.sceneVersion}`;
+
+      if (data.obstacles) {
+        for (let id in SIM.obstacles) {
+          if (!data.obstacles[id]) { SIM.scene.remove(SIM.obstacles[id]); delete SIM.obstacles[id]; }
+        }
+        for (let id in data.obstacles) {
+          const obs = data.obstacles[id];
+          if (!SIM.obstacles[id]) {
+            const mesh = buildObstacleMesh(obs);
+            SIM.scene.add(mesh); SIM.obstacles[id] = mesh;
+          } else {
+            const mesh = SIM.obstacles[id];
+            mesh.position.set(obs.x, (obs.height || 3) / 2, obs.y);
+            mesh.rotation.y = THREE.MathUtils.degToRad(obs.rotation || 0);
+            mesh.userData.obstacleData = obs;
+          }
+        }
+      }
+
+      if (data.robot_pos) {
+        if (!SIM.robotMesh) { SIM.robotMesh = createRobotModel(data.robot_pos); SIM.scene.add(SIM.robotMesh); }
+        else { SIM.robotMesh.position.set(data.robot_pos[0], 0, data.robot_pos[1]); }
+        document.getElementById('telRobotPos').innerText = `(${data.robot_pos[0].toFixed(1)}, ${data.robot_pos[1].toFixed(1)})`;
+      }
+
+      if (data.goal_pos) {
+        if (!SIM.goalMesh) { SIM.goalMesh = createGoalModel(data.goal_pos); SIM.scene.add(SIM.goalMesh); }
+        else { SIM.goalMesh.position.set(data.goal_pos[0], 0, data.goal_pos[1]); }
+        document.getElementById('telGoalPos').innerText = `(${data.goal_pos[0].toFixed(1)}, ${data.goal_pos[1].toFixed(1)})`;
+      }
+
+      const inval = data.invalidation;
+      const prevPlan = data.previous_plan || SIM.currentPlan;
+      const newPlan = data.current_plan;
+
+      if (inval && inval.plan_affected) {
+        document.getElementById('verdictBadge').className = 'lab-verdict-badge state-fail';
+        document.getElementById('verdictBadge').innerText = 'RECOVERING';
+        document.getElementById('verdictReason').innerText = `Collision detected! ${inval.invalidated_assumption}`;
+        document.getElementById('compAssumption').innerText = inval.invalidated_assumption;
+        document.getElementById('compRecovery').innerText = 'Alternate corridor path planned with verified clearance.';
+        renderPathLines(newPlan, prevPlan, inval.invalid_segment_idx);
+      } else {
+        document.getElementById('verdictBadge').className = 'lab-verdict-badge state-pass';
+        document.getElementById('verdictBadge').innerText = 'PASS';
+        document.getElementById('verdictReason').innerText = 'Constraints verified with 2-sigma margin.';
+        document.getElementById('compAssumption').innerText = 'None (All assumptions verified)';
+        document.getElementById('compRecovery').innerText = 'Primary corridor verified safe.';
+        renderPathLines(newPlan);
+      }
+
+      if (newPlan) {
+        SIM.currentPlan = newPlan;
+        document.getElementById('telClearance').innerText = `${newPlan.min_clearance.toFixed(2)} m`;
+      }
+
+      if (data.event_log) updateLogUI(data.event_log);
+    }
+
+    function updateLogUI(events) {
+      const stream = document.getElementById('logStream');
+      stream.innerHTML = '';
+      events.slice(0, 15).forEach(ev => {
+        const item = document.createElement('div');
+        const isAlert = ev.type.includes('INVALID') || ev.type.includes('FAIL');
+        const isSuccess = ev.type.includes('PASS') || ev.type.includes('VERIF') || ev.type.includes('RECOV');
+        item.className = `lab-log-item ${isAlert ? 'alert' : (isSuccess ? 'success' : '')}`;
+        item.innerHTML = `<span style="color:#9CA3AF; min-width:40px;">${ev.time}</span><span><strong>[${ev.type}]</strong> ${ev.details}</span>`;
+        stream.appendChild(item);
+      });
+    }
+
+    function toggleRobotRun() {
+      SIM.isRunning = !SIM.isRunning;
+      const btn = document.getElementById('btnRunSim');
+      btn.innerText = SIM.isRunning ? '⏸ PAUSE' : '▶ RUN ROBOT';
+      btn.className = SIM.isRunning ? 'lab-btn lab-btn-danger' : 'lab-btn lab-btn-primary';
+      document.getElementById('simStateTag').innerText = SIM.isRunning ? 'NAVIGATING' : 'PAUSED';
+    }
+
+    function stepSimulation() {
+      if (!SIM.currentPlan || !SIM.currentPlan.waypoints) return;
+      SIM.robotPathProgress = (SIM.robotPathProgress + 0.05) % 1.0;
+      updateRobotPositionOnPath();
+    }
+
+    function setSpeed(val) {
+      SIM.speed = parseFloat(val);
+      document.getElementById('speedVal').innerText = `${SIM.speed.toFixed(1)}x`;
+    }
+
+    function updateRobotPositionOnPath() {
+      if (!SIM.robotMesh || !SIM.currentPlan || !SIM.currentPlan.waypoints || SIM.currentPlan.waypoints.length < 2) return;
+      const wps = SIM.currentPlan.waypoints;
+      const totalSegs = wps.length - 1;
+      const scaled = SIM.robotPathProgress * totalSegs;
+      const idx = Math.floor(scaled);
+      const t = scaled - idx;
+
+      if (idx < totalSegs) {
+        const p1 = wps[idx]; const p2 = wps[idx + 1];
+        const curX = p1[0] + (p2[0] - p1[0]) * t;
+        const curZ = p1[1] + (p2[1] - p1[1]) * t;
+        SIM.robotMesh.position.set(curX, 0, curZ);
+
+        const dx = p2[0] - p1[0]; const dz = p2[1] - p1[1];
+        const angle = Math.atan2(dx, dz);
+        SIM.robotMesh.rotation.y = angle;
+        document.getElementById('telRobotPos').innerText = `(${curX.toFixed(1)}, ${curZ.toFixed(1)})`;
+
+        if (SIM.camMode === 'follow') {
+          SIM.camera.position.set(curX - Math.sin(angle) * 8, 8, curZ - Math.cos(angle) * 8);
+          SIM.camera.lookAt(curX, 0.5, curZ);
+          SIM.controls.target.set(curX, 0.5, curZ);
+        }
+      }
+    }
+
+    function onWindowResize() {
+      updateHomeOverlayPositions();
+      const container = document.getElementById('viewport3D');
+      if (SIM.camera && SIM.renderer && container && container.clientWidth > 0) {
+        SIM.camera.aspect = container.clientWidth / container.clientHeight;
+        SIM.camera.updateProjectionMatrix();
+        SIM.renderer.setSize(container.clientWidth, container.clientHeight);
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (SIM.isRunning) {
+        SIM.robotPathProgress += 0.002 * SIM.speed;
+        if (SIM.robotPathProgress >= 1.0) SIM.robotPathProgress = 0.0;
+        updateRobotPositionOnPath();
+      }
+      if (SIM.controls && SIM.camMode !== 'top') SIM.controls.update();
+
+      if (SIM.goalMesh && SIM.goalMesh.children[1]) {
+        SIM.goalMesh.children[1].position.y = 1.2 + Math.sin(Date.now() * 0.003) * 0.15;
+        SIM.goalMesh.children[1].rotation.y += 0.02;
+      }
+
+      if (SIM.renderer && SIM.scene && SIM.camera) {
+        SIM.renderer.render(SIM.scene, SIM.camera);
+      }
+    }
+
+    window.onload = function() {
+      const hash = window.location.hash.replace('#', '') || 'home';
+      navigateTo(hash);
+      setTimeout(updateHomeOverlayPositions, 100);
+    };
+  </script>
+</body>
+</html>

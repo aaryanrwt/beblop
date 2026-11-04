@@ -1,0 +1,266 @@
+--- PAGE 1 ---
+BEBOP decision memo | 3 Nov 2026 | estimates labelled as such; no experimental results claimed
+Page 1 of 2
+BEBOP: Decision Memo for the Meta Global AI Developer Hackathon
+Prepared 3 Nov 2026 | Verdict: NARROW BEBOP | Scores and the 'new' assessment are my estimates, not measured results
+Schedule reality check (verified on the official page). Project submissions are due Nov 4, 9:00 PM ET (Nov 5, 6:30 AM IST); applications
+closed Oct 25 (or earlier if the 20,000 cap filled). The ten-day window is almost over, so this memo plans about 24 hours, not ten days. I
+found no extension notice. I could not verify whether your account was accepted; you report no Meta credits yet, so a local-model Plan B is
+in the PRD/TRD/Models documents.
+1. Thesis and problem
+Thesis. BEBOP should be a fail-closed verifier: it approves a physical action only when each assumption behind it is backed by measured
+evidence, and otherwise returns UNDECIDED together with the specific missing measurement. Problem. Perception-driven systems keep
+acting on stale or low-quality state without knowing it. The evidence below shows this is real, but it is a family of problems (degraded
+sensing, stale state, VLM grounding errors, failed actions), not one universal problem.
+2. Evidence (graded by source type)
+ Claim
+Type / date
+What it shows
+Limits
+NHTSA EA26002 (upgrade of
+PE24031)
+Official, 18 Mar
+2026
+NHTSA frames the issue as failure of FSD's degradation
+detection to detect reduced visibility and warn the driver;
+about 3.2M vehicles.
+Open investigation, no defect finding or
+recall in sources I read. Crash counts (9,
+one fatal) come from secondary press.
+Does not prove an AI-perception root
+cause.
+VAP-TAMP (arXiv 2604.26988)
+Preprint, 28 Apr
+2026
+Says VLMs fail under occlusion and give no calibrated
+confidence. 72 of 100 real trials hit at least one
+unexpected situation; success 88% vs 76% (OK-Robot)
+and 69% (COWP).
+Authors' own results, one lab, Gemini as
+VLM.
+AsgardBench (arXiv
+2603.15888)
+Preprint, 16 Mar
+2026
+Text-only drops to 36.1% accuracy; reports weak visual
+grounding and state tracking in VLM planners.
+Simulator, high-level actions only.
+Dream2Fix (arXiv 2603.13528)
+Preprint, 13 Mar
+2026
+Fine-tuned VLM raises correction accuracy 19.7% to
+81.3%; 46% zero-shot real-robot recovery.
+Needs fine-tuning data; out of reach in 24
+h.
+Reddit thread on identity under
+occlusion
+Anecdote, Mar
+2026
+A practitioner says ReID mostly solves occlusion except
+for identical objects.
+3 upvotes; a lead, not evidence.
+Coverage gap. I did not get meaningful X/Twitter, GitHub-issue or Hacker News coverage, and Reddit gave one weak lead. I could not locate
+primary sources matching CLOSER, Vision-Guided Recovery or constrained natural-language action planning, so they are not cited. The 'budgeted
+replanning' paper (arXiv 2608.01428) was seen by title only. Do not cite Tesla as proof that perception caused crashes.
+3. Closest prior work and the remaining gap
+ System
+Detects change
+Diagnoses
+Requests new evidence
+Replans
+Overlap with original
+BEBOP
+VAP-TAMP (2026)
+Yes
+(pre/post-condition
+VQA)
+Perception error vs world
+change vs execution failure
+Yes, VLM-chosen viewpoint
+(1.61 vs 4.35 views)
+Yes (PDDL)
+Very high: most of the
+loop
+Ahmad et al. (2025)
+Yes
+VLM finds missing
+condition/skill
+No
+Yes (behavior
+trees)
+High
+RoVLaP (AAMAS 2026)
+Via belief states
+No
+Active sensing listed as
+future work
+Plans across
+plausible states
+Medium
+AP-VLM (2024), RePLan
+(2024)
+Partial
+Partial
+AP-VLM: VLM picks
+viewpoint
+RePLan: yes
+Medium
+AsgardBench (2026)
+Benchmark
+Benchmark
+n/a
+n/a
+Evaluation reference
+only
+What is genuinely new? Not the pipeline: change detection, diagnosis, VLM-guided extra observation and replanning already exist in
+VAP-TAMP. Red-team result: a team that built VAP-TAMP could argue that its paraphrase-vote check, view-sufficiency check and
+re-verification of preconditions before every action already cover BEBOP's loop, and that re-verifying before acting makes explicit
+dependency tracing largely redundant. I accept that for the ledger, so it is now an explanation aid, not a novelty claim. What I found in the
+paper (code not audited) is that its Algorithm 2 still returns a binary value when the viewpoint budget runs out, so it has no abstain output,
+and its checks are VLM yes/no rather than metric. The defensible gap is therefore narrow: a verifier that abstains with a quantified
+margin, tested head-to-head on scenes where the evidence is genuinely insufficient. If a VAP-style baseline matches it on false
+approvals, the contribution shrinks to engineering and should be reported that way.
+Verdict on the problem: real, important, and worth solving in narrow form. Original BEBOP is not differentiated enough to build as
+specified. First users: robotics/CV engineers who need an audit trail for 'why did the system say go?'. Today they use ad-hoc thresholds and
+logs.
+
+--- PAGE 2 ---
+BEBOP decision memo | 3 Nov 2026 | estimates labelled as such; no experimental results claimed
+Page 2 of 2
+4. Recommended solution: BEBOP-Gate (tabletop clearance verifier)
+Workflow. (1) SAM 3.1 segments the moving object, obstacles and passage edges from a short clip. (2) Deterministic code measures the
+gap and its uncertainty (spread across 3 frames x 5 prompt variants, plus a printed scale marker). (3) Each assumption (for example gap at
+least object width + margin) is written to a versioned ledger with the mask evidence that supports it. (4) New frames re-score every
+assumption; if an input changed, the assumption and every decision that depends on it are marked invalid. (5) Verdict: PASS only if margin
+exceeds 2 sigma; FAIL if the violation exceeds 2 sigma; otherwise UNDECIDED plus the missing measurement (which dimension, which
+tolerance, which unoccluded view). (6) If FAIL, check an alternate route with the same verifier.
+ Component
+Handled by
+Why
+Object/passage masks, tracking across frames
+SAM 3.1 (docs)
+Text prompt in, box + mask out; video tracking documented.
+Output is special-token text that needs parsing (not yet tested by
+me).
+Semantic labelling of ambiguous scenes,
+plain-language explanation
+Muse Spark 1.3 (Responses API)
+Only place free-text reasoning helps. Never decides PASS/FAIL.
+Gap geometry, uncertainty, tri-state verdict,
+ledger, invalidation
+Deterministic Python
+Must be auditable and reproducible; an LLM here would
+reintroduce false approvals.
+Illustrative trace (not measured). t0: gap 142 +/- 6 mm vs object 120 mm + 5 mm margin -> PASS; ledger A1 cites masks m1-m3. t1: a block
+moves, blocker mask changes -> A1 invalid, route R1 flagged. t2: hand occludes edge, gap 128 +/- 14 mm -> UNDECIDED; missing measurement:
+edge width to +/- 4 mm from an unoccluded top-down view. t3: new frame, gap 112 +/- 3 mm -> FAIL; route R2 verified PASS; explanation cites the
+evidence.
+5. Evaluation (build this; report only what you measure)
+Data: about 40 phone-captured scenes: 3 gap classes (clear pass, marginal, clear fail) x clean, hand-occluded, blur, low light, lookalike
+distractor, object moved mid-clip. At least 10 are unanswerable by design (the deciding edge is hidden or the gap is within measurement
+error), so the correct output is UNDECIDED. Ground truth: ruler/caliper gap. Baseline 1: Muse Spark yes/no on the image. Baseline 2:
+SAM mask + geometry, single shot, binary. Baseline 3 (new): a VAP-style verifier I reimplement from the paper's description on Muse Spark
+(5 paraphrased questions, majority vote, sufficiency check, forced binary answer at budget exhaustion); label it a reimplementation, not their
+code. Metrics, in priority order: false-approval rate on all scenes and on the unanswerable subset; risk-coverage curve (errors vs fraction
+answered); stale-plan retention after a change; missed changes; UNDECIDED cases resolved by one extra measurement. Target, not
+result: fewer false approvals than all three baselines at at least 70% coverage.
+6. Alternatives compared (my 1-10 estimates; higher is better, 'Low-dup' = low duplication risk)
+ Direction
+Sev
+Dem
+Orig
+Depth
+Feas
+Meta
+Demo
+Eval
+Low-dup
+Cred
+Total
+A. Decision-history + recovery
+6
+5
+3
+6
+6
+6
+7
+6
+3
+6
+54
+B. Active perception, next observation
+6
+5
+3
+7
+4
+6
+6
+5
+3
+4
+49
+C. Plan verifier + smallest missing measurement
+7
+6
+5
+6
+8
+7
+8
+9
+5
+8
+69
+D. Perception-degradation gate (from NHTSA
+evidence)
+8
+7
+4
+5
+8
+6
+7
+9
+4
+8
+66
+Reasoning: A and B are the most duplicated by VAP-TAMP and B needs camera motion or hardware. C is the most objectively testable. D has the
+strongest official evidence but is mostly uncertainty estimation. Recommendation merges C and D: D's instability signal produces UNDECIDED; C
+produces the verdict.
+7. 24-hour plan, risks, hackathon fit
+ Hours
+Deliverable
+Fallback if blocked
+0-2
+Confirm acceptance and key; SAM 3.1 smoke test; parse masks
+No credits: local Grounding DINO + SAM 2.1 (Apache-2.0) or
+OpenCV color segmentation; label substitutes honestly
+2-8
+Capture 40 scenes with ground truth; gap + uncertainty code
+Cut to 24 scenes
+8-14
+Tri-state verifier, ledger, invalidation
+Drop alternate-route check
+14-18
+Run both baselines + BEBOP; table of measured results
+Report fewer metrics, never invented ones
+18-22
+Simple Streamlit/HTML view: overlay, ledger, verdict
+Static annotated images
+22-24
+README, 2-minute demo video, submit with 3 h buffer before 9 PM ET
+Submit the working subset
+Reuse (licenses from memory, verify before use): OpenCV (Apache-2.0), Shapely (BSD-3), supervision (MIT, optional overlays). Too ambitious
+for 24 h: belief-space planning, VLM-driven viewpoint robots, Dream2Fix-style fine-tuning, information-gain optimization. Do not build: 3D
+reconstruction, a simulator, multi-agent orchestration, robot control. Cost (pricing): SAM $2.50 per 1,000 images, $0.20 per 1,000 video frames
+(50-frame minimum per request); Contributor mode trains Meta models on your content.
+Fit (Indie track): works-and-measured is the strong point; Push the Frontier fits via robotics/physical-system verification; Build for Your World is weak
+unless you have a real domain, so do not force it. Crowded field: public repos BONISA, SceneProof and LandProof already pair Meta models with
+deterministic checks or abstention in other domains (README openings only), so lead with the measured false-approval table. Biggest risks: API
+access or SAM output parsing; too few scenes; a judge seeing a VLM wrapper (mitigated by the deterministic core and measured false-approval
+table); Baseline 3 matching BEBOP, which must be reported honestly.
+FINAL RECOMMENDATION: NARROW BEBOP to the tri-state clearance verifier above. If you are not an accepted participant, you cannot
+enter this event; build it anyway as an open-source portfolio piece. Single next action (next hour): run one SAM 3.1 call on a tabletop
+photo, parse the mask, and print a gap width in millimetres.
